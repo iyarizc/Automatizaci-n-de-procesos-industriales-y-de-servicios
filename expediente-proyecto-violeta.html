@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expediente de proyecto — Sistema Automatizado de Detección y Control de Incendios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+  /* Mismos tokens de color y tipografía que index.html, para mantener la identidad del sitio */
+  :root{
+    --bg-deep: #150826;
+    --bg-panel: #1f0f38;
+    --bg-card: #24123f;
+    --violet-700: #6d28d9;
+    --violet-500: #8b5cf6;
+    --violet-300: #c4b5fd;
+    --glow: #b57bff;
+    --ink: #f4ecff;
+    --muted: #b6a4d6;
+    --danger: #ff8a7b;
+    --trace: rgba(197, 158, 255, 0.16);
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+  html{ scroll-behavior: smooth; }
+
+  body{
+    background: var(--bg-deep);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, .display{ font-family: 'Space Grotesk', sans-serif; }
+
+  /* ---------- FONDO DE CIRCUITO ---------- */
+  .circuit-bg{
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-color: var(--bg-deep);
+    background-image:
+      linear-gradient(var(--trace) 1px, transparent 1px),
+      linear-gradient(90deg, var(--trace) 1px, transparent 1px);
+    background-size: 64px 64px;
+    background-position: -1px -1px;
+  }
+  .circuit-bg::before{
+    content: "";
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(650px 650px at 12% 8%, rgba(139,92,246,0.30), transparent 60%),
+      radial-gradient(500px 500px at 88% 15%, rgba(181,123,255,0.24), transparent 60%),
+      radial-gradient(700px 700px at 50% 100%, rgba(109,40,217,0.26), transparent 60%);
+  }
+
+  .wrap{ position: relative; z-index: 1; }
+
+  /* ---------- ENCABEZADO ---------- */
+  .page-header{
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 7vh 6vw 4vh;
+  }
+
+  /* ⬇️ ENLACE "VOLVER" ⬇️ */
+  .back-link{
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    color: var(--violet-300);
+    text-decoration: none;
+    border: 1px solid rgba(196,181,253,0.3);
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(139,92,246,0.08);
+    margin-bottom: 2.4rem;
+    transition: gap 0.2s ease, border-color 0.2s ease;
+  }
+  .back-link:hover{ gap: 0.8rem; border-color: rgba(181,123,255,0.6); }
+
+  /* ⬇️ ETIQUETA DE TEMA ⬇️ */
+  .kicker{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    color: var(--violet-300);
+    margin-bottom: 1.2rem;
+  }
+
+  /* ⬇️ TÍTULO DEL PROYECTO ⬇️ */
+  .page-header h1{
+    font-size: clamp(1.9rem, 4.6vw, 3.1rem);
+    font-weight: 700;
+    line-height: 1.15;
+    max-width: 22ch;
+    background: linear-gradient(100deg, #ffffff 10%, var(--violet-300) 55%, var(--glow) 90%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* ⬇️ INTEGRANTES Y FECHA ⬇️ */
+  .meta-line{ margin-top: 1.3rem; font-size: 0.9rem; color: var(--muted); }
+
+  /* ⬇️ DESCRIPCIÓN INTRODUCTORIA ⬇️ */
+  .lead{ margin-top: 1.1rem; max-width: 66ch; font-size: 1.02rem; color: var(--muted); }
+
+  /* ---------- ÍNDICE ---------- */
+  .indice{ max-width: 1080px; margin: 0 auto; padding: 0 6vw; }
+  .indice-titulo{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+  .indice-lista{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 0.5rem 1.5rem;
+    list-style: none;
+    padding-bottom: 2.4rem;
+    border-bottom: 1px solid rgba(196,181,253,0.18);
+  }
+  .indice-lista a{
+    font-size: 0.88rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .indice-lista a:hover{ color: var(--violet-300); }
+
+  /* ---------- CONTENIDO ---------- */
+  .contenido{ max-width: 1080px; margin: 0 auto; padding: 4rem 6vw 6rem; }
+
+  .seccion{
+    position: relative;
+    background: linear-gradient(165deg, var(--bg-card), var(--bg-panel));
+    border: 1px solid rgba(196,181,253,0.14);
+    border-radius: 12px;
+    padding: 2.2rem 2rem;
+    margin-bottom: 2.2rem;
+    scroll-margin-top: 2rem;
+    transition: border-color .25s ease, box-shadow .25s ease;
+  }
+  .seccion::before{
+    content: "";
+    position: absolute; top: 0; left: 24px;
+    width: 32px; height: 3px;
+    background: var(--violet-500);
+    border-radius: 0 0 3px 3px;
+  }
+  .seccion:hover{
+    border-color: rgba(181,123,255,0.4);
+    box-shadow: 0 0 0 1px rgba(139,92,246,0.12), 0 12px 34px -16px rgba(139,92,246,0.4);
+  }
+
+  .seccion-numero{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--violet-300);
+    opacity: 0.9;
+    margin-bottom: 0.9rem;
+    display: block;
+  }
+
+  .seccion-titulo{ font-size: clamp(1.2rem, 2.3vw, 1.5rem); color: var(--ink); margin-bottom: 0.4rem; font-weight: 600; }
+  .seccion-meta{ font-size: 0.82rem; color: var(--muted); font-style: italic; margin-bottom: 1.4rem; }
+  .seccion-texto{ font-size: 0.98rem; color: var(--muted); max-width: 74ch; margin-bottom: 1rem; }
+  .seccion-texto:last-child{ margin-bottom: 0; }
+  .seccion-texto strong{ color: var(--ink); font-weight: 600; }
+  .seccion-subtitulo{ font-family: 'IBM Plex Mono', monospace; font-size: 0.85rem; letter-spacing: 0.04em; color: var(--violet-300); margin: 1.6rem 0 0.9rem; }
+
+  /* ---------- IMÁGENES ---------- */
+  .figura{ margin: 1.8rem 0; }
+  .figura img{ width: 100%; border-radius: 10px; border: 1px solid rgba(196,181,253,0.18); display: block; background: #fff; }
+  .figura-caption{ font-size: 0.82rem; color: var(--muted); margin-top: 0.6rem; text-align: center; }
+  .enlace-3d{ display: inline-block; margin-top: 0.5rem; font-size: 0.9rem; color: var(--violet-300); word-break: break-all; }
+
+  /* ---------- PASOS ---------- */
+  .pasos{ display: grid; gap: 1.1rem; margin-top: 1.6rem; }
+  .paso{
+    display: grid; grid-template-columns: 42px 1fr; gap: 1.1rem; align-items: start;
+    padding: 1.1rem 1.3rem;
+    background: rgba(21, 8, 38, 0.55);
+    border: 1px solid rgba(196,181,253,0.12);
+    border-radius: 8px;
+    transition: border-color .25s ease;
+  }
+  .paso:hover{ border-color: rgba(181,123,255,0.45); }
+  .paso-num{
+    width: 42px; height: 42px; border-radius: 50%;
+    background: rgba(139,92,246,0.12);
+    border: 1px solid rgba(196,181,253,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Grotesk', sans-serif; font-weight: 600; color: var(--violet-300);
+  }
+  .paso-titulo{ font-size: 1rem; font-weight: 600; color: var(--ink); margin-bottom: 0.3rem; }
+  .paso-desc{ font-size: 0.88rem; color: var(--muted); }
+
+  /* ---------- CAJA DE DETALLE ---------- */
+  .detalle-box{
+    background: rgba(21, 8, 38, 0.55);
+    border-left: 3px solid var(--violet-500);
+    border-radius: 8px;
+    padding: 1.5rem 1.6rem;
+    margin-top: 1.6rem;
+  }
+  .detalle-box.alerta{ border-left-color: var(--danger); }
+  .detalle-titulo{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--ink);
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .detalle-lista{ list-style: none; }
+  .detalle-lista li{
+    padding: 0.65rem 0 0.65rem 1.3rem;
+    border-bottom: 1px solid rgba(196,181,253,0.1);
+    color: var(--muted); font-size: 0.9rem; line-height: 1.6; position: relative;
+  }
+  .detalle-lista li::before{ content: '▸'; position: absolute; left: 0; color: var(--violet-300); }
+  .detalle-lista li:last-child{ border-bottom: none; }
+  .detalle-lista strong{ color: var(--ink); }
+
+  /* ---------- ALGORITMO ---------- */
+  .algoritmo-bloque{ margin-top: 1.6rem; }
+  .algoritmo-etiqueta{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem; color: var(--violet-300);
+    letter-spacing: 0.05em; margin: 1.6rem 0 0.6rem;
+  }
+  .algoritmo-lista{ counter-reset: paso-num; list-style: none; }
+  .algoritmo-lista li{
+    counter-increment: paso-num; position: relative; padding: 0.55rem 0 0.55rem 2.2rem;
+    font-size: 0.92rem; color: var(--muted); border-bottom: 1px solid rgba(196,181,253,0.1);
+  }
+  .algoritmo-lista li::before{
+    content: counter(paso-num); position: absolute; left: 0; top: 0.5rem;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(139,92,246,0.14); border: 1px solid rgba(196,181,253,0.3);
+    color: var(--violet-300); font-size: 0.7rem; font-family: 'IBM Plex Mono', monospace;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .algoritmo-lista li:last-child{ border-bottom: none; }
+
+  /* ---------- MATERIALES ---------- */
+  .materiales{ display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1.1rem; margin-top: 1.6rem; }
+  .material{
+    background: rgba(21, 8, 38, 0.55);
+    border: 1px solid rgba(196,181,253,0.12);
+    border-radius: 8px; padding: 1.2rem 1.3rem;
+    transition: transform .25s ease, border-color .25s ease;
+  }
+  .material:hover{ transform: translateY(-3px); border-color: rgba(181,123,255,0.45); }
+  .material-icono{ font-size: 1.5rem; margin-bottom: 0.7rem; }
+  .material-nombre{ font-size: 0.95rem; font-weight: 600; color: var(--ink); margin-bottom: 0.3rem; }
+  .material-desc{ font-size: 0.84rem; color: var(--muted); }
+
+  /* ---------- TABLAS ---------- */
+  .tabla-wrap{
+    margin-top: 1.6rem;
+    overflow-x: auto;
+    border: 1px solid rgba(196,181,253,0.14);
+    border-radius: 10px;
+  }
+  table{ width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 520px; }
+  thead th{
+    background: rgba(139,92,246,0.1);
+    color: var(--violet-300);
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 500;
+    text-align: left;
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid rgba(196,181,253,0.14);
+    white-space: nowrap;
+  }
+  tbody td{ padding: 0.75rem 1rem; border-bottom: 1px solid rgba(196,181,253,0.1); color: var(--muted); vertical-align: top; }
+  tbody tr:last-child td{ border-bottom: none; }
+  tbody td strong{ color: var(--ink); }
+  tbody tr:hover td{ background: rgba(139,92,246,0.05); }
+  .tabla-nota{ font-size: 0.82rem; color: var(--muted); margin-top: 0.8rem; font-style: italic; }
+
+  /* ---------- RESUMEN NUMÉRICO ---------- */
+  .resumen-cifras{ display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-top: 1.6rem; }
+  .cifra{ background: rgba(21, 8, 38, 0.55); border: 1px solid rgba(196,181,253,0.14); border-radius: 8px; padding: 1.2rem; text-align: center; }
+  .cifra-valor{ font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--violet-300); }
+  .cifra-label{ font-size: 0.76rem; color: var(--muted); margin-top: 0.3rem; }
+
+  /* ---------- DISTRIBUCIÓN DE TAREAS ---------- */
+  .tareas-lista{ margin-top: 1.6rem; list-style: none; }
+  .tareas-lista li{ display: flex; justify-content: space-between; gap: 1rem; padding: 0.65rem 0; border-bottom: 1px solid rgba(196,181,253,0.1); font-size: 0.9rem; }
+  .tareas-lista li:last-child{ border-bottom: none; }
+  .tarea-nombre{ color: var(--ink); }
+  .tarea-responsable{ color: var(--violet-300); font-size: 0.8rem; white-space: nowrap; font-family: 'IBM Plex Mono', monospace; }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    text-align: center;
+    padding: 2.4rem 6vw 3rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    border-top: 1px solid rgba(196,181,253,0.12);
+    position: relative; z-index: 1;
+  }
+
+  @media (max-width: 640px){
+    .page-header{ padding: 6vh 6vw 3vh; }
+    .indice{ padding: 0 6vw; }
+    .contenido{ padding: 3rem 6vw 4rem; }
+    .seccion{ padding: 1.6rem 1.3rem; }
+    .paso{ grid-template-columns: 34px 1fr; }
+    .tareas-lista li{ flex-direction: column; gap: 0.2rem; }
+  }
+
+  a:focus-visible{ outline: 2px solid var(--glow); outline-offset: 3px; }
+</style>
+</head>
+<body>
+
+<div class="circuit-bg"></div>
+
+<div class="wrap">
+
+<header class="page-header">
+  <!-- ⬇️ AQUÍ CAMBIAS EL ENLACE DE REGRESO ⬇️ -->
+  <a href="index.html" class="back-link">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+    VOLVER AL CATÁLOGO
+  </a>
+
+  <!-- ⬇️ ETIQUETA DE TEMA ⬇️ -->
+  <p class="kicker">02 · EXPEDIENTE DE PROYECTO</p>
+  <!-- ⬇️ TÍTULO DEL PROYECTO ⬇️ -->
+  <h1>Sistema Automatizado de Detección y Control de Incendios</h1>
+  <!-- ⬇️ INTEGRANTES Y FECHA — cambia aquí ⬇️ -->
+  <p class="meta-line">Ruiz Pérez Alde Elishua · Velasco Maza Valeria Michell · Ruiz Hernández Yael · Zavala Clemente Iyari · Aguilar Alejo Ian Martín — Inteligencia Artificial 5° "A" · Septiembre 2026</p>
+  <!-- ⬇️ DESCRIPCIÓN INTRODUCTORIA ⬇️ -->
+  <p class="lead">Expediente completo del proyecto: descripción del proceso, justificación, objetivos, diagramas, algoritmo, materiales, costos, tareas, cronograma, riesgos y criterios de éxito.</p>
+</header>
+
+<!-- ⬇️ ÍNDICE — si agregas o quitas secciones, actualiza esta lista de enlaces ⬇️ -->
+<nav class="indice">
+  <p class="indice-titulo">CONTENIDO DEL EXPEDIENTE</p>
+  <ul class="indice-lista">
+    <li><a href="#s01">01 · Descripción del proceso</a></li>
+    <li><a href="#s02">02 · Problema o necesidad</a></li>
+    <li><a href="#s03">03 · Objetivo general</a></li>
+    <li><a href="#s04">04 · Objetivos específicos</a></li>
+    <li><a href="#s05">05 · Diagrama de flujo</a></li>
+    <li><a href="#s06">06 · Entradas y salidas</a></li>
+    <li><a href="#s07">07 · Sensores y actuadores</a></li>
+    <li><a href="#s08">08 · Diagrama de bloques</a></li>
+    <li><a href="#s09">09 · Diagrama de conexión</a></li>
+    <li><a href="#s10">10 · Algoritmo / pseudocódigo</a></li>
+    <li><a href="#s11">11 · Lista de materiales</a></li>
+    <li><a href="#s12">12 · Cotización</a></li>
+    <li><a href="#s13">13 · Presupuesto</a></li>
+    <li><a href="#s14">14 · Distribución de tareas</a></li>
+    <li><a href="#s15">15 · Cronograma</a></li>
+    <li><a href="#s16">16 · Riesgos y seguridad</a></li>
+    <li><a href="#s17">17 · Criterios de éxito</a></li>
+  </ul>
+</nav>
+
+<main class="contenido">
+
+  <!-- ============================================================= -->
+  <!-- 01 · DESCRIPCIÓN DEL PROCESO -->
+  <!-- ============================================================= -->
+  <section class="seccion" id="s01">
+    <span class="seccion-numero">01 / 17</span>
+    <h2 class="seccion-titulo">Descripción del proceso</h2>
+    <p class="seccion-meta">Explicación clara del proceso que se desea automatizar y cómo funciona.</p>
+
+    <!-- ⬇️⬇️ TEXTO — edita los párrafos aquí ⬇️⬇️ -->
+    <p class="seccion-texto">
+      El proyecto <strong>"Sistema Automatizado de Detección y Control de Incendios"</strong> tiene como
+      objetivo automatizar la detección de fuego para evitar y prevenir incendios.
+    </p>
+    <p class="seccion-texto">
+      Gracias a sensores, al detectar el aumento de temperatura, se activa una alarma y al mismo tiempo
+      se activa una bomba de agua la cual rociará el agua en toda la casa o cuarto en la que haya un
+      incendio para apagar la fuente de calor.
+    </p>
+
+    <div class="pasos">
+      <div class="paso">
+        <div class="paso-num">1</div>
+        <div>
+          <div class="paso-titulo">Detección</div>
+          <div class="paso-desc">El sensor de temperatura empieza a detectar el aumento de temperatura; al llegar a una temperatura alta, manda una señal a la alarma y a la bomba de agua para activarse.</div>
+        </div>
+      </div>
+      <div class="paso">
+        <div class="paso-num">2</div>
+        <div>
+          <div class="paso-titulo">Respuesta</div>
+          <div class="paso-desc">Se activa la alarma para avisar a las personas cerca del incendio. Al mismo tiempo se activa la bomba de agua, que manda chorros de agua por todo el lugar, y se abre la puerta principal de la planta baja.</div>
+        </div>
+      </div>
+      <div class="paso">
+        <div class="paso-num">3</div>
+        <div>
+          <div class="paso-titulo">Cierre</div>
+          <div class="paso-desc">Cuando el sensor de temperatura detecta que ya se redujo la temperatura, apaga la alarma y la bomba de agua.</div>
+        </div>
+      </div>
+    </div>
+    <!-- ⬆️⬆️ FIN TEXTO ⬆️⬆️ -->
+
+    <!-- ⬇️ IMAGEN DE LA MAQUETA 3D — cambia el archivo en la carpeta img/ si usas otra ⬇️ -->
+    <div class="figura">
+      <img src="img/casa-3d.png" alt="Render 3D de la maqueta de la casa con el sistema de rociadores">
+      <p class="figura-caption">Diseño tridimensional (3D) propuesto para la elaboración de la maqueta.</p>
+      <!-- ⬇️ ENLACE AL MODELO 3D — cambia la URL aquí ⬇️ -->
+      <a class="enlace-3d" href="https://www.hi3d.ai/share/6060eb794a8e4719a7210ed699f531fb?inviteCode=4Ss52QL0wI&shareType=history_model" target="_blank" rel="noopener">Ver modelo 3D interactivo ↗</a>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 02 · PROBLEMA O NECESIDAD -->
+  <!-- ============================================================= -->
+  <section class="seccion" id="s02">
+    <span class="seccion-numero">02 / 17</span>
+    <h2 class="seccion-titulo">Problema o necesidad</h2>
+    <p class="seccion-meta">Situación actual, necesidad detectada y razón para automatizar.</p>
+
+    <h3 class="seccion-subtitulo">SITUACIÓN ACTUAL</h3>
+    <p class="seccion-texto">
+      En una vivienda, los principales lugares que pueden provocar un incendio son la cocina —por la
+      estufa, el horno y el aceite—, la sala o el comedor —por enchufes, aparatos eléctricos, velas o
+      calefactores— y el dormitorio, donde es importante contar con detectores para que, en caso de
+      incendio, la alarma despierte a las personas durante la noche o las avise de día.
+    </p>
+    <p class="seccion-texto">
+      Si no hay un sistema de detección, el fuego puede pasar desapercibido durante los primeros minutos,
+      aumentando el riesgo de daños materiales y para las personas.
+    </p>
+
+    <h3 class="seccion-subtitulo">NECESIDAD DETECTADA</h3>
+    <p class="seccion-texto">
+      Es importante contar con un sistema capaz de reaccionar al humo o a un aumento peligroso de
+      temperatura para emitir una alerta inmediata, permitiendo que las personas evacuen lo antes posible.
+    </p>
+
+    <h3 class="seccion-subtitulo">RAZÓN PARA AUTOMATIZAR</h3>
+    <p class="seccion-texto">
+      La automatización permite que la detección del incendio y la activación de las alarmas se realicen
+      de manera automática, sin depender de que una persona esté vigilando constantemente. Esto reduce el
+      tiempo de respuesta, mejora la seguridad de la vivienda y disminuye los posibles daños.
+    </p>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 03 · OBJETIVO GENERAL -->
+  <!-- ============================================================= -->
+  <section class="seccion" id="s03">
+    <span class="seccion-numero">03 / 17</span>
+    <h2 class="seccion-titulo">Objetivo general</h2>
+    <p class="seccion-meta">Resultado principal que se pretende alcanzar.</p>
+
+    <p class="seccion-texto">
+      Crear un sistema capaz de detectar incendios —o el inicio de estos— de manera rápida, con la
+      finalidad de prevenir accidentes y salvaguardar la integridad de las personas que se encuentren en
+      su domicilio, oficinas, salones u otros espacios cerrados.
+    </p>
+    <p class="seccion-texto">
+      El sistema busca identificar situaciones de riesgo principalmente mediante la detección de humo o
+      un incremento anormal de la temperatura. Al detectar alguno de estos factores, generará una alerta
+      que permita actuar de manera oportuna antes de que el incendio se propague y provoque daños mayores.
+    </p>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 04 · OBJETIVOS ESPECÍFICOS -->
+  <!-- ============================================================= -->
+  <section class="seccion" id="s04">
+    <span class="seccion-numero">04 / 17</span>
+    <h2 class="seccion-titulo">Objetivos específicos</h2>
+    <p class="seccion-meta">3 a 5 acciones concretas que permitan alcanzar el objetivo general.</p>
+
+    <p class="seccion-texto">
+      Detectar, prevenir y ayudar a controlar incendios antes de que estos puedan expandirse, buscando
+      reducir los posibles daños materiales y, principalmente, proteger la integridad de las personas. El
+      sistema está diseñado para su uso en <strong>domicilios y lugares residenciales</strong>, especialmente en
+      espacios cerrados.
+    </p>
+    <p class="seccion-texto">
+      La automatización permitirá <strong>monitorear constantemente el entorno</strong>, identificar señales
+      que indiquen el posible inicio de un incendio y emitir alertas. Mediante la bomba de agua, se busca
+      además incorporar una función de control que actúe ante un incendio en su etapa inicial.
+    </p>
+
+    <h3 class="seccion-subtitulo">ESPACIOS DE LA MAQUETA A AUTOMATIZAR</h3>
+    <div class="detalle-box">
+      <ul class="detalle-lista">
+        <li><strong>Sala de estar y comedor:</strong> zona de riesgo por enchufes y aparatos eléctricos.</li>
+        <li><strong>Cocina:</strong> zona de mayor riesgo por la estufa, el horno y el aceite.</li>
+        <li><strong>Recámara:</strong> detección nocturna para alertar a las personas mientras duermen.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 05 · DIAGRAMA DE FLUJO -->
+  <!-- ============================================================= -->
+  <section class="seccion" id="s05">
+    <span class="seccion-numero">05 / 17</span>
+    <h2 class="seccion-titulo">Diagrama de flujo del proceso</h2>
+    <p class="seccion-meta">Representación del proceso físico: inicio, detección, decisiones, acciones, resultados y repetición.</p>
+
+    <!-- ⬇️ IMAGEN DEL DIAGRAMA DE FLUJO ⬇️ -->
+    <div class="figura">
+      <img src="img/diagrama-flujo.png" alt="Diagrama de flujo del sistema de detección y control de incendios">
+      <p class="figura-caption">Flujo completo: inicialización, lectura de sensores, evaluación por cuarto, alertas y acciones de seguridad.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 06 · ENTRADAS Y SALIDAS -->
+  <!-- ============================================================= -->
+  <section class="seccion" id="s06">
+    <span class="seccion-numero">06 / 17</span>
+    <h2 class="seccion-titulo">Entradas y salidas</h2>
+    <p class="seccion-meta">Sensores, botones y otras entradas; motores, servos, LEDs, alarmas y demás salidas.</p>
+
+    <h3 class="seccion-subtitulo">ENTRADAS</h3>
+    <div class="tabla-wrap">
+      <table>
+        <thead><tr><th>Material</th><th>Tipo de entrada</th><th>¿Qué detecta?</th></tr></thead>
+        <tbody>
+          <tr><td><strong>TMP36</strong></td><td>Entrada analógica</td><td>Temperatura</td></tr>
+          <tr><td><strong>Sensor de flama</strong></td><td>Entrada digital/analógica</td><td>Presencia de llama</td></tr>
+          <tr><td><strong>Módulo de gas</strong></td><td>Entrada analógica/digital</td><td>Gas/humo</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="seccion-subtitulo">SALIDAS</h3>
+    <div class="tabla-wrap">
+      <table>
+        <thead><tr><th>Material</th><th>Tipo de salida</th><th>Función</th></tr></thead>
+        <tbody>
+          <tr><td><strong>LEDs</strong></td><td>Salida digital</td><td>Indicar alarma/incendio</td></tr>
+          <tr><td><strong>Buzzer</strong></td><td>Salida digital</td><td>Emitir alarma sonora</td></tr>
+          <tr><td><strong>OLED SSD1306</strong></td><td>Salida I2C</td><td>Mostrar temperatura, gas, llama y estado</td></tr>
+          <tr><td><strong>Servo SG90</strong></td><td>Salida PWM</td><td>Abrir/cerrar la puerta principal</td></tr>
+          <tr><td><strong>Bomba de agua / motor DC</strong></td><td>Actuador</td><td>Simular/aplicar el rociador</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="detalle-box">
+      <div class="detalle-titulo">⚡ ¿Y EL MOSFET?</div>
+      <p class="seccion-texto" style="margin-bottom:0;">
+        El MOSFET no es la salida final, sino un elemento de control/interfaz: <strong>Arduino → resistencia
+        1 kΩ → MOSFET → bomba</strong>. El Arduino no alimenta directamente la bomba; el MOSFET permite que una
+        señal pequeña del Arduino controle la corriente que necesita la bomba.
+      </p>
+    </div>
+
+    <h3 class="seccion-subtitulo">MATERIALES QUE NO SON ENTRADAS NI SALIDAS</h3>
+    <div class="detalle-box">
+      <ul class="detalle-lista">
+        <li><strong>Arduino UNO:</strong> controlador.</li>
+        <li><strong>Protoboard y soldadura:</strong> montaje/conexión.</li>
+        <li><strong>Cables Dupont y cables entre placas:</strong> conexión y comunicación.</li>
+        <li><strong>Resistencias de 220 Ω:</strong> protección del LED.</li>
+        <li><strong>Resistencias de 10 kΩ y 1 kΩ:</strong> parte del circuito y control del MOSFET.</li>
+        <li><strong>Diodo de protección:</strong> protección de la bomba.</li>
+        <li><strong>Fuente/batería/cargador:</strong> alimentación.</li>
+        <li><strong>Manguerita:</strong> parte mecánica del sistema de rociadores.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 07 · SELECCIÓN DE SENSORES Y ACTUADORES -->
+  <!-- ============================================================= -->
+  <section class="seccion" id="s07">
+    <span class="seccion-numero">07 / 17</span>
+    <h2 class="seccion-titulo">Selección de sensores y actuadores</h2>
+    <p class="seccion-meta">Componente elegido, características básicas y justificación de su elección.</p>
+
+    <h3 class="seccion-subtitulo">SENSORES — ENTRADAS</h3>
+    <div class="tabla-wrap">
+      <table>
+        <thead><tr><th>Componente</th><th>Características</th><th>¿Por qué se eligió?</th></tr></thead>
+        <tbody>
+          <tr><td><strong>TMP36</strong></td><td>Sensor analógico de temperatura, aprox. −40 °C a 125 °C.</td><td>Detecta aumentos de temperatura en cada habitación; compatible con las entradas analógicas del Arduino UNO a 5 V.</td></tr>
+          <tr><td><strong>Sensor de flama</strong></td><td>Detecta radiación infrarroja de una llama; señal digital y/o analógica.</td><td>Detecta directamente la presencia de fuego en cada habitación.</td></tr>
+          <tr><td><strong>Módulo de gas</strong></td><td>Salida analógica y/o digital según el módulo.</td><td>Complementa la detección de incendios al detectar gases o humo.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="seccion-subtitulo">ACTUADORES — SALIDAS</h3>
+    <div class="tabla-wrap">
+      <table>
+        <thead><tr><th>Componente</th><th>Características</th><th>¿Por qué se eligió?</th></tr></thead>
+        <tbody>
+          <tr><td><strong>LED</strong></td><td>~2 V, 10–20 mA.</td><td>Indica visualmente qué habitación presenta alarma; se controla con una resistencia de 220 Ω.</td></tr>
+          <tr><td><strong>Buzzer</strong></td><td>Genera señal sonora al recibir alimentación.</td><td>Alarma audible cuando se detecta fuego o condición peligrosa.</td></tr>
+          <tr><td><strong>OLED SSD1306 I2C</strong></td><td>128×64 px, comunicación I2C.</td><td>Muestra temperatura, gas, llama y estado usando pocos pines.</td></tr>
+          <tr><td><strong>Servo SG90</strong></td><td>~180°, señal PWM.</td><td>Representa la apertura automática de la puerta principal.</td></tr>
+          <tr><td><strong>Bomba de agua</strong></td><td>Motor DC con alimentación propia.</td><td>Acciona el sistema de rociadores; no se conecta directo al Arduino.</td></tr>
+          <tr><td><strong>MOSFET/transistor</strong></td><td>Controla cargas de mayor corriente con una señal pequeña.</td><td>Permite que el Arduino controle la bomba sin suministrarle corriente directa.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="seccion-subtitulo">COMPONENTES DE APOYO</h3>
+    <p class="seccion-texto">No son sensores ni actuadores, pero son necesarios para que el sistema funcione correctamente.</p>
+    <div class="detalle-box">
+      <ul class="detalle-lista">
+        <li><strong>Arduino UNO:</strong> controlador del sistema.</li>
+        <li><strong>Resistencia de 220 Ω:</strong> limita la corriente de los LED.</li>
+        <li><strong>Resistencia de 1 kΩ:</strong> controla/protege la entrada del transistor.</li>
+        <li><strong>Diodo de protección:</strong> protege frente a picos de tensión del motor de la bomba.</li>
+        <li><strong>Fuente externa para la bomba:</strong> proporciona la corriente que necesita.</li>
+        <li><strong>Protoboard y cables:</strong> conexiones.</li>
+        <li><strong>Manguera:</strong> conducción del agua hacia el rociador.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 08 · DIAGRAMA DE BLOQUES -->
+  <!-- ============================================================= -->
+  <section class="seccion" id="s08">
+    <span class="seccion-numero">08 / 17</span>
+    <h2 class="seccion-titulo">Diagrama de bloques</h2>
+    <p class="seccion-meta">Relación entre sensores, Arduino/controlador, procesamiento y actuadores.</p>
+
+    <!-- ⬇️ IMAGEN DEL DIAGRAMA DE BLOQUES ⬇️ -->
+    <div class="figura">
+      <img src="img/diagrama-bloques.png" alt="Diagrama de bloques del sistema: entradas, controlador, procesamiento y salidas">
+      <p class="figura-caption">Arquitectura general: tres habitaciones con sensores, un Arduino UNO como controlador y cinco tipos de salida.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 09 · DIAGRAMA DE CONEXIÓN PRELIMINAR -->
+  <!-- ============================================================= -->
+  <section class="seccion" id="s09">
+    <span class="seccion-numero">09 / 17</span>
+    <h2 class="seccion-titulo">Diagrama de conexión preliminar</h2>
+    <p class="seccion-meta">Conexiones previstas, alimentación, pines y módulos necesarios — para evitar errores antes del cableado físico.</p>
+
+    <!-- ⬇️ IMAGEN DEL DIAGRAMA DE CONEXIÓN ⬇️ -->
+    <div class="figura">
+      <img src="img/diagrama-conexion.png" alt="Diagrama de conexión preliminar en Tinkercad del circuito completo">
+      <p class="figura-caption">Simulación del cableado completo: tres sensores TMP36, tres sensores de flama, tres módulos de gas, LEDs, buzzer, servo, bomba y pantalla OLED.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 10 · ALGORITMO / PSEUDOCÓDIGO -->
+  <!-- ============================================================= -->
+  <section class="seccion" id="s10">
+    <span class="seccion-numero">10 / 17</span>
+    <h2 class="seccion-titulo">Algoritmo / pseudocódigo</h2>
+    <p class="seccion-meta">Pasos lógicos que seguirá el programa de control.</p>
+
+    <div class="algoritmo-bloque">
+      <p class="algoritmo-etiqueta">» INICIO</p>
+      <ol class="algoritmo-lista">
+        <li>Inicializar el sistema.</li>
+        <li>Configurar los sensores de temperatura, flama y gas de los tres cuartos como entradas.</li>
+        <li>Configurar los LEDs de alerta, buzzer y bomba como salidas.</li>
+        <li>Inicializar el servomotor y colocarlo en posición 0° (aspersor cerrado).</li>
+        <li>Inicializar la pantalla OLED y mostrar "SISTEMA DE DETECCIÓN DE INCENDIOS" durante 2 segundos.</li>
+      </ol>
+
+      <p class="algoritmo-etiqueta">» CICLO PRINCIPAL</p>
+      <ol class="algoritmo-lista" start="6">
+        <li>Leer la temperatura, flama y gas del Cuarto 1, Cuarto 2 y Cuarto 3.</li>
+        <li>Evaluar cada cuarto: si la temperatura es ≥ 50 °C, o se detecta flama, o se detecta gas → INCENDIO EN ESE CUARTO; de lo contrario, CUARTO NORMAL.</li>
+        <li>Encender el LED de cada cuarto con incendio y apagar el de los cuartos normales.</li>
+        <li>Determinar si existe INCENDIO GENERAL (si algún cuarto lo presenta).</li>
+      </ol>
+
+      <p class="algoritmo-etiqueta">» SI EXISTE INCENDIO</p>
+      <ol class="algoritmo-lista" start="10">
+        <li>Activar el buzzer y la bomba de agua.</li>
+        <li>Mover el servomotor a 90° para abrir/posicionar el aspersor.</li>
+        <li>Mostrar en la OLED "ALERTA – INCENDIO" e indicar qué cuarto(s) están afectados.</li>
+        <li>Mantener las acciones de emergencia mientras exista al menos un cuarto en incendio.</li>
+      </ol>
+
+      <p class="algoritmo-etiqueta">» SI NO EXISTE INCENDIO</p>
+      <ol class="algoritmo-lista" start="14">
+        <li>Apagar el buzzer y la bomba de agua; mover el servomotor a 0°.</li>
+        <li>Mostrar en la OLED la información de cada cuarto de forma secuencial (2 segundos cada uno).</li>
+        <li>Enviar al Monitor Serial la temperatura, estado de flama, gas e incendio de cada cuarto.</li>
+        <li>Esperar aproximadamente 500 ms y regresar a leer los sensores.</li>
+      </ol>
+      <p class="algoritmo-etiqueta">» FIN DEL CICLO / REPETIR INDEFINIDAMENTE</p>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 11 · LISTA DE MATERIALES -->
+  <!-- ============================================================= -->
+  <section class="seccion" id="s11">
+    <span class="seccion-numero">11 / 17</span>
+    <h2 class="seccion-titulo">Lista de materiales</h2>
+    <p class="seccion-meta">Cantidad, componente, especificación y función.</p>
+
+    <div class="tabla-wrap">
+      <table>
+        <thead><tr><th>Cant.</th><th>Componente</th><th>Especificación</th><th>Función</th></tr></thead>
+        <tbody>
+          <tr><td>2</td><td><strong>Arduino UNO</strong></td><td>Placa compatible</td><td>Control y procesamiento de sensores, actuadores y comunicación entre placas</td></tr>
+          <tr><td>1</td><td><strong>Protoboard grande</strong></td><td>Compatible con Arduino</td><td>Montaje y conexión de componentes</td></tr>
+          <tr><td>1 juego</td><td><strong>Cables Dupont</strong></td><td>Macho-macho y macho-hembra</td><td>Interconexión de sensores, módulos y Arduino</td></tr>
+          <tr><td>3</td><td><strong>Sensor TMP36</strong></td><td>Salida analógica</td><td>Medición de temperatura en cada habitación</td></tr>
+          <tr><td>3</td><td><strong>Sensor de flama</strong></td><td>Módulo detector de llama</td><td>Detectar presencia de fuego</td></tr>
+          <tr><td>3</td><td><strong>Sensor/módulo de gas</strong></td><td>Módulo detector de gases</td><td>Detectar gases de riesgo</td></tr>
+          <tr><td>3</td><td><strong>LED rojo</strong></td><td>LED indicador</td><td>Indicar alarma en cada habitación</td></tr>
+          <tr><td>3</td><td><strong>Resistencia 220 Ω</strong></td><td>—</td><td>Limitar corriente de cada LED</td></tr>
+          <tr><td>1</td><td><strong>Resistencia 10 kΩ</strong></td><td>—</td><td>Auxiliar, si el circuito la requiere</td></tr>
+          <tr><td>1</td><td><strong>Pantalla OLED SSD1306</strong></td><td>I2C, 128×64</td><td>Mostrar temperatura, alarmas y estado</td></tr>
+          <tr><td>1</td><td><strong>Buzzer</strong></td><td>5 V</td><td>Alarma sonora</td></tr>
+          <tr><td>1</td><td><strong>Servomotor SG90</strong></td><td>—</td><td>Abrir/cerrar la puerta principal</td></tr>
+          <tr><td>1</td><td><strong>Bomba de agua</strong></td><td>Mini bomba DC</td><td>Activar el sistema de rociadores</td></tr>
+          <tr><td>1</td><td><strong>MOSFET/transistor</strong></td><td>Adecuado a la corriente de la bomba</td><td>Encender/apagar la bomba desde el Arduino</td></tr>
+          <tr><td>1</td><td><strong>Diodo</strong></td><td>De protección, ej. 1N4007</td><td>Proteger el circuito de picos de la bomba</td></tr>
+          <tr><td>1</td><td><strong>Resistencia 1 kΩ</strong></td><td>—</td><td>Limitar corriente hacia el MOSFET</td></tr>
+          <tr><td>1</td><td><strong>Fuente para bomba</strong></td><td>Según voltaje/corriente de la bomba</td><td>Alimentar la bomba sin sobrecargar el Arduino</td></tr>
+          <tr><td>1</td><td><strong>Manguera</strong></td><td>Diámetro adecuado</td><td>Llevar agua de la bomba a los rociadores</td></tr>
+          <tr><td>1</td><td><strong>Depósito de agua</strong></td><td>Recipiente pequeño</td><td>Almacenar el agua para la bomba</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="seccion-subtitulo">MATERIAL PARA LA ESTRUCTURA DE LA MAQUETA</h3>
+    <div class="materiales">
+      <div class="material"><div class="material-icono">🪵</div><div class="material-nombre">Triplay 6 mm</div><div class="material-desc">1.22 × 2.44 m — estructura principal de la maqueta.</div></div>
+      <div class="material"><div class="material-icono">🪟</div><div class="material-nombre">Lámina acrílica</div><div class="material-desc">50.8 × 81.3 cm — ventana o panel desmontable.</div></div>
+      <div class="material"><div class="material-icono">🎨</div><div class="material-nombre">Pintura vinílica/acrílica</div><div class="material-desc">1 L — acabado de la maqueta.</div></div>
+      <div class="material"><div class="material-icono">🔧</div><div class="material-nombre">Tubo PVC 1/2"</div><div class="material-desc">1 m — parte de la tubería simulada.</div></div>
+      <div class="material"><div class="material-icono">💧</div><div class="material-nombre">Manguera transparente 1/4"</div><div class="material-desc">5 m — rociadores.</div></div>
+      <div class="material"><div class="material-icono">🧰</div><div class="material-nombre">Ferretería varia</div><div class="material-desc">Listón, adhesivo, lijas, conectores, bridas y tornillería.</div></div>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 12 · COTIZACIÓN -->
+  <!-- ============================================================= -->
+  <section class="seccion" id="s12">
+    <span class="seccion-numero">12 / 17</span>
+    <h2 class="seccion-titulo">Cotización</h2>
+    <p class="seccion-meta">Proveedor, precio unitario, cantidad, subtotal, envío y total.</p>
+
+    <p class="seccion-texto">
+      Maqueta de 65 cm largo × 25 cm profundidad × 45 cm alto. Cotización de referencia en México
+      (6 de septiembre de 2026); los precios pueden variar por ciudad, inventario y envío.
+    </p>
+
+    <div class="tabla-wrap">
+      <table>
+        <thead><tr><th>Proveedor</th><th>Material / componente</th><th>P. unitario</th><th>Cant.</th><th>Subtotal</th><th>Envío</th><th>Total</th></tr></thead>
+        <tbody>
+          <tr><td>The Home Depot México</td><td>Triplay construcción 6 mm</td><td>$315</td><td>1</td><td>$315</td><td>$120</td><td>$435</td></tr>
+          <tr><td>The Home Depot México</td><td>Lámina acrílica 50.8×81.3 cm</td><td>$399</td><td>1</td><td>$399</td><td>$120</td><td>$519</td></tr>
+          <tr><td>The Home Depot México</td><td>Pintura vinílica/acrílica 1 L</td><td>$139</td><td>1</td><td>$139</td><td>$0</td><td>$139</td></tr>
+          <tr><td>The Home Depot México</td><td>Tubo PVC 1/2 × 1 m</td><td>$18</td><td>1</td><td>$18</td><td>$0</td><td>$18</td></tr>
+          <tr><td>The Home Depot México</td><td>Manguera transparente 1/4"</td><td>$10</td><td>5 m</td><td>$50</td><td>$0</td><td>$50</td></tr>
+          <tr><td>Estimación local</td><td>Listón, adhesivo, lijas, conectores, bridas</td><td>$420</td><td>1 lote</td><td>$420</td><td>$0</td><td>$420</td></tr>
+          <tr><td>Precios proporcionados</td><td>TMP36, sensores de flama y gas</td><td>$420</td><td>1 lote</td><td>$420</td><td>$60</td><td>$480</td></tr>
+          <tr><td>Geek Factory México</td><td>Display OLED SSD1306 I2C</td><td>$69</td><td>1</td><td>$69</td><td>$80</td><td>$149</td></tr>
+          <tr><td>Electrónica Valtierra</td><td>Mini bomba sumergible 5 V</td><td>$63</td><td>1</td><td>$63</td><td>$80</td><td>$143</td></tr>
+          <tr><td>Estimación</td><td>MOSFET o transistor</td><td>$20</td><td>1</td><td>$20</td><td>$0</td><td>$20</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="tabla-nota">
+      Total estimado de compra con envío: $2,333 MXN (cotización logística conservadora). El presupuesto
+      técnico sin envío es de $2,038 MXN — no deben sumarse ambos como compras obligatorias.
+    </p>
+    <p class="tabla-nota">
+      Ya disponibles y excluidos del total: 2 Arduino UNO, protoboard grande, cables entre placas, LEDs,
+      resistencias de 220 Ω y 10 kΩ, buzzer, servo SG90, diodo y resistencia de 1 kΩ.
+    </p>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 13 · PRESUPUESTO -->
+  <!-- ============================================================= -->
+  <section class="seccion" id="s13">
+    <span class="seccion-numero">13 / 17</span>
+    <h2 class="seccion-titulo">Presupuesto</h2>
+    <p class="seccion-meta">Presupuesto disponible, costo estimado y margen para imprevistos.</p>
+
+    <div class="resumen-cifras">
+      <div class="cifra"><div class="cifra-valor">$1,403</div><div class="cifra-label">Materiales de estructura y acabado</div></div>
+      <div class="cifra"><div class="cifra-valor">$635</div><div class="cifra-label">Electrónica faltante</div></div>
+      <div class="cifra"><div class="cifra-valor">$2,038</div><div class="cifra-label">Subtotal estimado</div></div>
+      <div class="cifra"><div class="cifra-valor">$2,242</div><div class="cifra-label">Presupuesto recomendado (+10%)</div></div>
+    </div>
+
+    <div class="tabla-wrap" style="margin-top:1.6rem;">
+      <table>
+        <thead><tr><th>Escenario</th><th>Presupuesto disp.</th><th>Costo estimado</th><th>Imprevistos</th><th>Resultado</th></tr></thead>
+        <tbody>
+          <tr><td>Mínimo, reutilizando materiales</td><td>$2,000</td><td>$1,800</td><td>$200</td><td>Viable con poca decoración</td></tr>
+          <tr><td>Recomendado, estructura completa</td><td>$2,500</td><td>$2,038</td><td>$204</td><td>Viable; margen de $258</td></tr>
+          <tr><td>Con envíos separados</td><td>$2,600</td><td>$2,333</td><td>$267</td><td>Viable; confirmar envíos</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="detalle-box">
+      <div class="detalle-titulo">⚡ RECOMENDACIONES DE COMPRA</div>
+      <ul class="detalle-lista">
+        <li>Comprar primero el triplay, los sensores, el OLED y la bomba; después decoración y acabados.</li>
+        <li>Solicitar cortes del triplay o preparar un plano de corte antes de comprar una segunda hoja.</li>
+        <li>No alimentar la bomba desde un pin del Arduino: usar MOSFET, diodo de protección y fuente compatible.</li>
+        <li>Probar fugas con agua antes de instalar la electrónica y mantener las placas fuera del depósito.</li>
+      </ul>
+    </div>
+    <p class="tabla-nota">Nota de seguridad: esta es una maqueta escolar demostrativa. Los sensores, la bomba y los rociadores no sustituyen un sistema certificado de protección contra incendios.</p>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 14 · DISTRIBUCIÓN DE TAREAS -->
+  <!-- ============================================================= -->
+  <section class="seccion" id="s14">
+    <span class="seccion-numero">14 / 17</span>
+    <h2 class="seccion-titulo">Distribución de tareas</h2>
+    <p class="seccion-meta">Responsabilidad de cada integrante del equipo.</p>
+
+    <!-- ⬇️⬇️ LISTA DE TAREAS — edita nombre y responsable aquí ⬇️⬇️ -->
+    <ul class="tareas-lista">
+      <li><span class="tarea-nombre">Datos del proyecto</span><span class="tarea-responsable">Todos</span></li>
+      <li><span class="tarea-nombre">Descripción del proceso</span><span class="tarea-responsable">Valeria</span></li>
+      <li><span class="tarea-nombre">Problema o necesidad</span><span class="tarea-responsable">Valeria</span></li>
+      <li><span class="tarea-nombre">Objetivo general</span><span class="tarea-responsable">Valeria e Iyari</span></li>
+      <li><span class="tarea-nombre">Objetivos específicos</span><span class="tarea-responsable">Valeria e Iyari</span></li>
+      <li><span class="tarea-nombre">Diagrama de flujo del proceso</span><span class="tarea-responsable">Yael y Eli</span></li>
+      <li><span class="tarea-nombre">Entradas y salidas</span><span class="tarea-responsable">Yael y Eli</span></li>
+      <li><span class="tarea-nombre">Selección de sensores y actuadores</span><span class="tarea-responsable">Yael y Eli</span></li>
+      <li><span class="tarea-nombre">Diagrama de bloques</span><span class="tarea-responsable">Yael y Eli</span></li>
+      <li><span class="tarea-nombre">Diagrama de conexión preliminar</span><span class="tarea-responsable">Yael y Eli</span></li>
+      <li><span class="tarea-nombre">Algoritmo / pseudocódigo</span><span class="tarea-responsable">Iyari e Ian</span></li>
+      <li><span class="tarea-nombre">Lista de materiales</span><span class="tarea-responsable">Yael e Ian</span></li>
+      <li><span class="tarea-nombre">Cotización</span><span class="tarea-responsable">Ian</span></li>
+      <li><span class="tarea-nombre">Presupuesto</span><span class="tarea-responsable">Ian</span></li>
+      <li><span class="tarea-nombre">Distribución de tareas</span><span class="tarea-responsable">Eli</span></li>
+      <li><span class="tarea-nombre">Cronograma</span><span class="tarea-responsable">Eli</span></li>
+      <li><span class="tarea-nombre">Riesgos y seguridad</span><span class="tarea-responsable">Valeria</span></li>
+      <li><span class="tarea-nombre">Criterios de éxito</span><span class="tarea-responsable">Ian</span></li>
+      <li><span class="tarea-nombre">Diseño de casa 3D</span><span class="tarea-responsable">Ian</span></li>
+      <li><span class="tarea-nombre">Materiales para maqueta</span><span class="tarea-responsable">Ian</span></li>
+    </ul>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 15 · CRONOGRAMA -->
+  <!-- ============================================================= -->
+  <section class="seccion" id="s15">
+    <span class="seccion-numero">15 / 17</span>
+    <h2 class="seccion-titulo">Cronograma</h2>
+    <p class="seccion-meta">Actividades y fechas: diseño, compra, programación, armado, pruebas y presentación.</p>
+
+    <p class="seccion-texto">
+      <strong>Proyecto:</strong> Sistema Automatizado de Detección y Control de Incendios ·
+      <strong>Inicio:</strong> 03/septiembre/2026 · <strong>Entrega:</strong> primera semana de diciembre.
+    </p>
+
+    <div class="tabla-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Apartado</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td>01</td><td>Datos del proyecto</td><td>Realizado</td></tr>
+          <tr><td>02</td><td>Descripción del proceso</td><td>Realizado</td></tr>
+          <tr><td>03</td><td>Problema o necesidad</td><td>Realizado</td></tr>
+          <tr><td>04</td><td>Objetivo general</td><td>Realizado</td></tr>
+          <tr><td>05</td><td>Objetivos específicos</td><td>Realizado</td></tr>
+          <tr><td>06</td><td>Diagrama de flujo del proceso</td><td>Realizado</td></tr>
+          <tr><td>07</td><td>Entradas y salidas</td><td>Realizado</td></tr>
+          <tr><td>08</td><td>Selección de sensores y actuadores</td><td>Realizado</td></tr>
+          <tr><td>09</td><td>Diagrama de bloques</td><td>Realizado</td></tr>
+          <tr><td>10</td><td>Diagrama de conexión preliminar</td><td>Realizado</td></tr>
+          <tr><td>11</td><td>Algoritmo / pseudocódigo</td><td>Realizado</td></tr>
+          <tr><td>12</td><td>Lista de materiales</td><td>Realizado</td></tr>
+          <tr><td>13</td><td>Cotización</td><td>Realizado</td></tr>
+          <tr><td>14</td><td>Presupuesto</td><td>Realizado</td></tr>
+          <tr><td>15</td><td>Distribución de tareas</td><td>Realizado</td></tr>
+          <tr><td>16</td><td>Cronograma</td><td>Actualización constante</td></tr>
+          <tr><td>17</td><td>Riesgos y seguridad</td><td>Realizado</td></tr>
+          <tr><td>18</td><td>Criterios de éxito</td><td>Realizado</td></tr>
+          <tr><td>19</td><td>Revisión y autorización</td><td>Pendiente</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 16 · RIESGOS Y SEGURIDAD -->
+  <!-- ============================================================= -->
+  <section class="seccion" id="s16">
+    <span class="seccion-numero">16 / 17</span>
+    <h2 class="seccion-titulo">Riesgos y seguridad</h2>
+    <p class="seccion-meta">Riesgos eléctricos, mecánicos, térmicos u otros y medidas preventivas.</p>
+
+    <h3 class="seccion-subtitulo">RIESGOS IDENTIFICADOS</h3>
+    <div class="detalle-box alerta">
+      <ul class="detalle-lista">
+        <li><strong>Fallas eléctricas:</strong> al activarse el riego, cables o controladores expuestos al agua podrían generar un corto circuito o una zona de riesgo eléctrico.</li>
+        <li><strong>Fallos térmicos:</strong> exposición del sistema a temperaturas altas puede generar sobrecalentamiento o dañar piezas, cables o el motor.</li>
+        <li><strong>Fallos mecánicos:</strong> falta de mantenimiento puede provocar desgaste de piezas, atascos en la manguera o falla general del sistema.</li>
+      </ul>
+    </div>
+
+    <h3 class="seccion-subtitulo">MEDIDAS PREVENTIVAS</h3>
+    <div class="detalle-box">
+      <ul class="detalle-lista">
+        <li><strong>Mantenimiento constante:</strong> supervisar que cables, motores y componentes estén en buen funcionamiento.</li>
+        <li><strong>Correcta instalación:</strong> instalar con personal capacitado y siguiendo el manual de uso.</li>
+        <li><strong>Uso de equipo oficial:</strong> mantener piezas originales y evitar componentes de dudosa procedencia.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 17 · CRITERIOS DE ÉXITO -->
+  <!-- ============================================================= -->
+  <section class="seccion" id="s17">
+    <span class="seccion-numero">17 / 17</span>
+    <h2 class="seccion-titulo">Criterios de éxito</h2>
+    <p class="seccion-meta">Condiciones medibles que deben cumplirse para considerar funcional el proyecto.</p>
+
+    <p class="seccion-texto">
+      La maqueta no pretende sustituir una instalación profesional; su finalidad es explicar, de manera
+      visual y segura, cómo se relacionan un sensor, un controlador, una sirena, una bomba, un tanque, las
+      tuberías y los rociadores.
+    </p>
+    <p class="seccion-texto"><strong>Principio central del proyecto: detectar, avisar, activar y apagar.</strong></p>
+
+    <div class="tabla-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Criterio</th><th>Cómo se comprobará</th><th>Resultado esperado</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Detección</td><td>Simular humo o calor con un sensor o señal equivalente</td><td>Señal detectada</td></tr>
+          <tr><td>2</td><td>Alerta</td><td>Sirena/buzzer suena y LED de advertencia enciende</td><td>Alerta visible y audible</td></tr>
+          <tr><td>3</td><td>Activación de la bomba</td><td>La bomba enciende después de la detección</td><td>Bomba funcionando</td></tr>
+          <tr><td>4</td><td>Circulación del agua</td><td>El agua sale del tanque y llega al rociador</td><td>Flujo observable</td></tr>
+          <tr><td>5</td><td>Rociado localizado</td><td>Solo el rociador de la zona con fuego libera agua</td><td>Agua dirigida al área afectada</td></tr>
+          <tr><td>6</td><td>Secuencia lógica</td><td>Se respeta el orden detectar → avisar → activar → apagar</td><td>Proceso comprensible</td></tr>
+          <tr><td>7</td><td>Representación visual</td><td>La maqueta muestra la ubicación de cada elemento</td><td>Diseño fácil de explicar</td></tr>
+          <tr><td>8</td><td>Seguridad</td><td>Prueba sin fuego real, bajo voltaje y supervisión adulta</td><td>Demostración segura</td></tr>
+          <tr><td>9</td><td>Presentación</td><td>El equipo explica la función de cada componente</td><td>Exposición clara</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="seccion-subtitulo">CONDICIONES DE ACEPTACIÓN</h3>
+    <div class="detalle-box">
+      <ul class="detalle-lista">
+        <li><strong>Funcionamiento mínimo:</strong> sensor o señal equivalente, alerta sonora o luminosa y activación de una bomba o indicador.</li>
+        <li><strong>Funcionamiento ideal:</strong> detección, alerta, bombeo, circulación visible del agua y rociado localizado en una sola demostración.</li>
+        <li><strong>Seguridad obligatoria:</strong> sin fuego real (o limitado con un encendedor), sin conexiones eléctricas mojadas, con agua contenida y supervisión.</li>
+        <li><strong>Explicación:</strong> el equipo identifica correctamente cada parte, su función y el orden del proceso.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<!-- ⬇️ AQUÍ CAMBIAS EL TEXTO DEL PIE DE PÁGINA ⬇️ -->
+<footer>
+  SISTEMA AUTOMATIZADO DE DETECCIÓN Y CONTROL DE INCENDIOS — INTELIGENCIA ARTIFICIAL 5° "A" · ING. Y MTRO. JORDY DE JESÚS CHIRINO BALCÁZAR
+</footer>
+
+</div>
+
+</body>
+</html>
