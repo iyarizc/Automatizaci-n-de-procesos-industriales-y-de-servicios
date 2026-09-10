@@ -432,6 +432,9 @@
     font-family: inherit;
   }
 
+  /* La card-enlace usa <a>, no <button>: mismo look, sin cursor de "acordeón" */
+  a.freq-tema-titulo{ text-decoration: none; }
+
   .freq-tema-titulo .freq-title-text{
     display: flex;
     flex-direction: column;
@@ -471,6 +474,13 @@
 
   .freq-card.open .chevron{
     transform: rotate(180deg);
+    background: rgba(139,92,246,0.18);
+    border-color: rgba(181,123,255,0.5);
+  }
+
+  /* Card que enlaza a página especial: la flecha se desliza en vez de rotar */
+  .freq-card.link-card:hover .chevron{
+    transform: translateX(4px);
     background: rgba(139,92,246,0.18);
     border-color: rgba(181,123,255,0.5);
   }
@@ -659,38 +669,23 @@
     </div>
 
     <!-- ======================================================= -->
-    <!-- CARD 2: EXPEDIENTE DE PROYECTO (colapsable, estilo index) -->
+    <!-- CARD 2: EXPEDIENTE DE PROYECTO — ahora enlaza a una página especial -->
     <!-- ======================================================= -->
-    <div class="freq-card" id="cardExpediente">
-      <button class="freq-tema-titulo" id="cardExpedienteToggle" aria-expanded="false" aria-controls="panelExpediente">
+    <div class="freq-card link-card" id="cardExpediente">
+      <!-- ⬇️ AQUÍ CAMBIAS EL ENLACE DE LA CARD ⬇️ -->
+      <a class="freq-tema-titulo" href="expediente-proyecto.html">
         <div class="freq-title-text">
           <!-- ⬇️ AQUÍ CAMBIAS EL TÍTULO DE LA CARD ⬇️ -->
           <h3>2. Expediente de proyecto</h3>
           <!-- ⬇️ AQUÍ CAMBIAS EL SUBTÍTULO ⬇️ -->
-          <p>Documentación y registro del proceso de desarrollo</p>
+          <p>Sistema Automatizado de Detección y Control de Incendios — toca para abrir el expediente completo.</p>
         </div>
         <span class="chevron">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"></polyline>
+            <polyline points="9 6 15 12 9 18"></polyline>
           </svg>
         </span>
-      </button>
-
-      <div class="freq-body" id="panelExpediente">
-        <div class="freq-body-inner">
-          <div class="freq-section">
-            <h4>📄 CONTEXTO</h4>
-            <div class="contexto-item">
-              <!-- ⬇️⬇️⬇️ AQUÍ CAMBIAS EL TEXTO DE CONTEXTO ⬇️⬇️⬇️ -->
-              <p>El expediente de proyecto es el documento que reúne toda la evidencia del proceso de
-                automatización: objetivos, planeación, diagramas, lista de materiales, avances y resultados
-                obtenidos. Sirve para dar seguimiento formal al proyecto y demostrar que cada etapa —desde
-                el diseño hasta las pruebas finales— fue realizada y validada correctamente.</p>
-              <!-- ⬆️⬆️⬆️ FIN DEL TEXTO DE CONTEXTO ⬆️⬆️⬆️ -->
-            </div>
-          </div>
-        </div>
-      </div>
+      </a>
     </div>
 
     <!-- ============================================================= -->
@@ -745,8 +740,8 @@
     toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
   });
 
-  // ---- Cards "Expediente de proyecto" y "Circuitos físicos individuales" ----
-  document.querySelectorAll('.freq-card').forEach((card) => {
+  // ---- Cards colapsables (excluye la card-enlace "Expediente de proyecto") ----
+  document.querySelectorAll('.freq-card:not(.link-card)').forEach((card) => {
     const btn = card.querySelector('.freq-tema-titulo');
     btn.addEventListener('click', () => {
       const isOpen = card.classList.toggle('open');
