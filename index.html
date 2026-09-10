@@ -691,64 +691,19 @@
     <!-- ============================================================= -->
     <!-- CARD 3: CIRCUITOS FÍSICOS INDIVIDUALES (colapsable, estilo index) -->
     <!-- ============================================================= -->
-    <div class="freq-card" id="cardCircuitos">
-      <button class="freq-tema-titulo" id="cardCircuitosToggle" aria-expanded="false" aria-controls="panelCircuitos">
+   <div class="freq-card link-card" id="cardExpediente">
+      <!-- ⬇️ AQUÍ CAMBIAS EL ENLACE DE LA CARD ⬇️ -->
+      <a class="freq-tema-titulo" href="tercer_card.html">
         <div class="freq-title-text">
           <!-- ⬇️ AQUÍ CAMBIAS EL TÍTULO DE LA CARD ⬇️ -->
-          <h3>3. Circuitos físicos individuales</h3>
+          <h3>3. Circuito físico individual</h3>
           <!-- ⬇️ AQUÍ CAMBIAS EL SUBTÍTULO ⬇️ -->
-          <p>Implementación y prueba de circuitos en hardware real</p>
+          <p>Sistema Automatizado de Detección y Control de Incendios — toca para abrir el expediente completo.</p>
         </div>
         <span class="chevron">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"></polyline>
+            <polyline points="9 6 15 12 9 18"></polyline>
           </svg>
         </span>
-      </button>
-
-      <div class="freq-body" id="panelCircuitos">
-        <div class="freq-body-inner">
-          <div class="freq-section">
-            <h4>📄 CONTEXTO</h4>
-            <div class="contexto-item">
-              <!-- ⬇️⬇️⬇️ AQUÍ CAMBIAS EL TEXTO DE CONTEXTO ⬇️⬇️⬇️ -->
-              <p>Antes de integrar un sistema completo, cada circuito se arma y prueba de forma individual
-                en Arduino: se conectan sensores o actuadores por separado, se verifica el cableado y se
-                comprueba que la lectura o el accionamiento funcione como se espera. Esta etapa permite
-                detectar y corregir fallas de manera aislada antes de combinar todos los módulos en el
-                proyecto final.</p>
-              <!-- ⬆️⬆️⬆️ FIN DEL TEXTO DE CONTEXTO ⬆️⬆️⬆️ -->
-            </div>
-          </div>
-        </div>
-      </div>
+      </a>
     </div>
-  </section>
-
-  <footer>
-    AUTOMATIZACIÓN DE PROCESOS INDUSTRIALES Y DE SERVICIOS — VELASCO MAZA VALERIA MICHELL
-  </footer>
-
-</div>
-
-<script>
-  const mainCard = document.getElementById('mainCard');
-  const toggleBtn = document.getElementById('mainCardToggle');
-
-  toggleBtn.addEventListener('click', () => {
-    const isOpen = mainCard.classList.toggle('open');
-    toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-  });
-
-  // ---- Cards colapsables (excluye la card-enlace "Expediente de proyecto") ----
-  document.querySelectorAll('.freq-card:not(.link-card)').forEach((card) => {
-    const btn = card.querySelector('.freq-tema-titulo');
-    btn.addEventListener('click', () => {
-      const isOpen = card.classList.toggle('open');
-      btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    });
-  });
-</script>
-
-</body>
-</html>
